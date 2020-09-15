@@ -1,0 +1,2 @@
+# Data-Scientist-with-R
+ Data Scientis with R é uma Career Track oferecida pela DataCamp para o desenvolvimento das habilidades necessárias para se tornar um cientista de dados. Nesta trilha de aprendizagem é ensinado como importar, limpar, manipular e vizualizar dados utilizando o pacote tidyverse que inclui o dplyr, readr e ggplot2.  A partir de conjuntos reais de dados aprende-se técnicas estatísticas e de aprendizagem de máquina necessárias para escrever funções e realizar análies de cluster.

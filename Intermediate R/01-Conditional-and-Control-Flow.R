@@ -83,9 +83,8 @@ linkedin >= 12 | facebook >= 12
 # When is views between 11 (exclusive) and 14 (inclusive)?
 11 < views & views <= 14
 
-li_df <- read.table(file = '/Datasets/li_df.txt',
-                    header = TRUE, 
-                    row.names = 'employee')
+li_df <- read.table(file = 'Datasets/li_df.txt', " ",
+                    TRUE)
 
 # Select the second column, named day2, from li_df: second
 second <- li_df$day2

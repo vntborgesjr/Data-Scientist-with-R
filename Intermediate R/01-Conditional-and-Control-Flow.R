@@ -5,7 +5,6 @@
 # ------------------------------------------------
 # 
 # Relational Operators  ------------------------------------------------
-
 # Equality ==
 # Inequality !=
 # Less than and greater than < and >
@@ -54,6 +53,8 @@ views == 13
 
 # When is views less than or equal to 14?
 views <= 14
+ 
+######################################################################
 
 # Logical Operators ------------------------------------------------
 
@@ -94,6 +95,8 @@ extremes <- second > 25 | second < 5
 
 # Count the number of TRUEs in extremes
 sum(extremes)
+ 
+######################################################################
 
 # Conditional Statements ------------------------------------------------
 
@@ -152,3 +155,5 @@ if (li >= 15 & fb >= 15) {
 
 # Print the resulting sms to the console
 print(sms)
+ 
+######################################################################

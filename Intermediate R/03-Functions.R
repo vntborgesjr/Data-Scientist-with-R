@@ -49,6 +49,8 @@ mean(linkedin, na.rm = TRUE)
 # Functions inside functions
 # Calculate the mean absolute deviation
 mean(abs(linkedin - facebook), na.rm = TRUE)
+ 
+######################################################################
 
 # Writing Functions ------------------------------------------------
 # Create a function pow_two()
@@ -137,6 +139,8 @@ interpret_all <- function(views, return_sum = TRUE) {
 
 # Call the interpret_all() function on both linkedin and facebook
 interpret_all(linkedin, return_sum = TRUE)
+ 
+######################################################################
 
 # R Packages ------------------------------------------------
 

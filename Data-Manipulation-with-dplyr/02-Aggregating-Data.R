@@ -4,6 +4,12 @@
 # VNTBJR 
 # --------------------------------------------------- 
 #
+# Load packages
+library(dplyr)
+
+# Load data
+counties <- readRDS(file = "Datasets/counties.rds")
+
 # The count verb  -------------------------------------------
 # Counting by region
 counties_selected <- counties %>% 
@@ -79,3 +85,49 @@ counties_selected %>%
             median_pop = median(total_pop))
  
 ######################################################################
+# The top_n verb  -------------------------------------------
+# Selecting a coutny from each region
+counties_selected <- counties %>%
+  select(region, state, county, metro, population, walk)
+
+# Group by region and find the greatest number of citizens who walk to work
+counties_selected %>%
+  group_by(region) %>% 
+  top_n(1, walk)
+
+# Finding the highest-income state in each region
+counties_selected <- counties %>%
+  select(region, state, county, population, income)
+
+counties_selected %>%
+  group_by(region, state) %>%
+  # Calculate average income
+  summarize(average_income = mean(income)) %>% 
+  # Find the highest income state in each region
+  top_n(1, average_income)
+
+# Using summarize, top_n, and count together
+counties_selected <- counties %>%
+  select(state, metro, population)
+
+# Find the total population for each combination of state and metro
+counties_selected %>%
+  group_by(state, metro) %>% 
+  summarize(total_pop = sum(population))
+
+# Extract the most populated row for each state
+counties_selected %>%
+  group_by(state, metro) %>%
+  summarize(total_pop = sum(population)) %>% 
+  top_n(1, total_pop)
+
+# Count the states with more people in Metro or Nonmetro areas
+counties_selected %>%
+  group_by(state, metro) %>%
+  summarize(total_pop = sum(population)) %>%
+  top_n(1, total_pop) %>% 
+  ungroup() %>% 
+  count(metro, sort = TRUE)
+ 
+######################################################################
+

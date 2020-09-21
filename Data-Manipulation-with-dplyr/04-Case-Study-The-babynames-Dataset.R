@@ -95,9 +95,8 @@ babynames_ratios_filtered <- babynames_fraction %>%
 
 babynames_ratios_filtered %>%
   # Extract the largest ratio from each name 
-  group_by(year) %>%
-  filter(ratio == max(ratio)) %>% 
-  # Sort the ratio column in descending order 
   top_n(1, ratio) %>% 
+  # Sort the ratio column in descending order 
+  arrange(desc(ratio)) %>% 
   # Filter for fractions greater than or equal to 0.001
   filter(fraction >= 0.001)

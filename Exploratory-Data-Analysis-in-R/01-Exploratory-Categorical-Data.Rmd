@@ -1,0 +1,336 @@
+---
+title: "01 - Exploratory Categorical Data"
+output: html_notebook
+---
+
+```{r, echo = FALSE, message = FALSE}
+library(tidyverse)
+?read_csv
+comics <- read_csv('/home/cla/Documentos/Vitor/DataCamp/Data-Scientist-with-R/Datasets/comics.csv', col_types = 'ffffffffif')
+
+```
+
+## **Exploring categorical data**
+
+**1. Exploring categorical data**
+
+Hi, I'm Andrew Bray. I'm an Assistant Professor of Statistics at Reed College and I'll be your instructor for this course on Exploratory Data Analysis or EDA. In this course, you'll be exploring data from a wide range of contexts. The first dataset comes from comic books.
+
+**2. Comics dataset**
+
+Two publishers, Marvel and DC, have created a host of superheroes that have made their way into popular culture. You're probably familiar with Batman and Spiderman, but what about Mor the Mighty? The comics dataset has information on all comic characters that have been introduced by DC and Marvel. If we type the name of the dataset at the console, we get the first few rows and columns. Here we see that each row, or case, is a different character and each column, or variable, is a different observation made on that character. At the top it tell us the dimensions of this dataset: over 23,000 cases and 11 variables. Right under the variable names, it tells us that all three of these are factors, R's preferred way to represent categorical variables. The first case is Peter Parker, alias: Spiderman. The second column shows that his personal identity is kept secret and the third column tell us that his alignment is good; that he's a superhero, not a super villain. At the bottom we see that there are 8 additional variables that aren't shown here, including eye color and hair color, almost all of which are also factors. We can learn the different levels of a particular factor by using the levels function.
+
+```{r}
+comics
+```
+```{r}
+levels(comics$align)
+levels(comics$id)
+table(comics$id, comics$align)
+```
+
+**3. Working with factors**
+
+It's clear that the alignment variable can be "good" or "neutral", but what other values are possible? If we run levels on the align column, we learn that there are in fact four possible alignments, including reformed criminal. I'm glad we checked that! If we do the same for identity, we learn that there are five possible identities. A common way to represent the number of cases that fall into each combination of levels of two categorical variables, like these, is with a contingency table. In R, this is done with the table command, which takes as arguments the variables that you're interested in. The output tells us that the most common category, at a count of 4493, was bad characters with secret identities. While tables of counts can be useful, you can get the bigger picture by translating these counts into a graphic.
+
+The graphics that you'll be making in this course utilize the ggplot2 package, which you got a glimpse of in the previous course. Every ggplot requires that you specify three elements: the dataset, the variables that you're interested in, then layers to describe how those variables are plotted. The dataset is the first argument in the ggplot function. The variables are usually found inside the the aes function, which stands for aesthetics. We're interested in the relationship between two categorical variables, which is represented well by a stacked bar chart.
+
+So we can specify that the want the id on the x axis, then the fill in each segment of the bar to be colored by alignment. Finally, we add the geometry layer to specify that this is a bar chart.
+
+**4. Bar chart**
+
+Let's look carefully at how this is constructed: each colored bar segment actually corresponds to a count in our table, with the x axis and the fill color indicating the category that we're looking at. Several things pop out, like the fact that there are very few characters whose identities are unknown, but there are many where we don't have data; that's what the NAs mean. The single largest bar segment corresponds to the most common category: characters with secret identities that are also bad. We can look across the identity types, though, and realize that bad is not always the largest category. This indicates that there is indeed an association between alignment and identity.
+
+```{r}
+ggplot(comics, aes(x = id, fill = align)) +
+  geom_bar()
+```
+
+**5. Let's practice!**
+
+That should be enough to get started. Now it's your turn to start exploring the data.
+
+
+## **Contingency table review**
+
+In this chapter you'll continue working with the `comics` dataset introduced in the video. This is a collection of characteristics on all of the superheroes created by Marvel and DC comics in the last 80 years.
+
+Let's start by creating a contingency table, which is a useful way to represent the total counts of observations that fall into each combination of the levels of categorical variables.
+
+**Instructions**
+
+- The dataset has been loaded into your workspace as `comics`.
+
+- Type the name of the dataset to look at the rows and columns of the dataset.
+- View the `levels()` that the `align` variable can take.
+- View the `levels()` that the `gender` variable can take.
+- Create a contingency table of the same two variables.
+
+```{r}
+# Print the first rows of the data
+head(comics)
+
+# Check levels of align
+levels(comics$align)
+
+# Check the levels of gender
+levels(comics$gender)
+
+# Create a 2-way contingency table
+tab <- table(comics$align, comics$gender)
+tab
+```
+
+## **Dropping levels**
+
+The contingency table from the last exercise revealed that there are some levels that have very low counts. To simplify the analysis, it often helps to drop such levels.
+
+In R, this requires two steps: first filtering out any rows with the levels that have very low counts, then removing these levels from the factor variable with 'droplevels()'. This is because the `droplevels()` function would keep levels that have just 1 or 2 counts; it only drops levels that don't exist in a dataset.
+
+**Instructions**
+
+The contingency table from the last exercise is available in your workspace as `tab`.
+
+- Load the `dplyr` package.
+- Print `tab` to find out which level of `align` has the fewest total entries.
+- Use `filter()` to filter out all rows of comics with that level, then drop the unused level with `droplevels()`. Save the simplified dataset as `comics_filtered`.
+
+```{r}
+# Load dplyr
+library(dplyr)
+
+# Print tab
+tab
+
+# Remove align level
+comics_filtered <- comics %>%
+  filter(align != 'Reformed Criminals') %>%
+  droplevels()
+
+# See the result
+comics_filtered
+```
+
+## **Side-by-side barcharts**
+
+While a contingency table represents the counts numerically, it's often more useful to represent them graphically.
+
+Here you'll construct two side-by-side barcharts of the `comics` data. This shows that there can often be two or more options for presenting the same data. Passing the argument `position = "dodge"` to `geom_bar()` says that you want a side-by-side (i.e. not stacked) barchart.
+
+**Instructions**
+
+- Load the `ggplot2` package.
+- Create a side-by-side barchart with `align` on the x-axis and `gender` as the `fill` aesthetic.
+- Create another side-by-side barchart with `gender` on the x-axis and `align` as the `fill` aesthetic. Rotate the axis labels 90 degrees to help readability.
+
+```{r}
+# Load ggplot2
+library(ggplot2)
+
+# Create side-by-side barchart of gender by alignment
+ggplot(comics_filtered, aes(x = align, fill = gender)) + 
+  geom_bar(position = "dodge")
+
+# Create side-by-side barchart of alignment by gender
+ggplot(comics_filtered, aes(x = gender, fill = align)) + 
+  geom_bar(position = "dodge") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+## **Count vs proportion**
+
+
+**1. Counts vs. proportions**
+
+You may have noticed in the last exercises that sometimes raw counts of cases can be useful, but often it's the proportions that are more interesting. We can do our best to compute these proportions in our head or we could do it explicitly.
+
+**2. From counts to proportions**
+
+Let's return to our table of counts of cases by identity and alignment. If we wanted to instead get a sense of the proportion of all cases that fell into each category, we can take the original table of counts, saved as tab underscore cnt, and provide it as input to the prop dot table function. We see here that the single largest category are characters that are bad and secret at about 29% of characters. Also note that because these are all proportions out of the whole dataset, the sum of all of these proportions is 1.
+
+```{r}
+options(scipen = 999, digits = 3) # simplify display format
+tab_cnt <- table(comics_filtered$id, comics_filtered$align)
+tab_cnt
+
+prop.table(tab_cnt)
+
+sum(prop.table(tab_cnt))
+```
+
+**3. Conditional proportions**
+
+If we're curious about systematic associations between variables, we should look to conditional proportions. An example of a conditional proportion is the proportion of public identity characters that are good. To build a table of these conditional proportions, add a 1 as the second argument, specifying that you'd like to condition on the rows. We see here that around 57% of all secret characters are bad. Because we're conditioning on identity, it's every row that now sums to one. To condition on the columns instead, change that argument to 2. Now it's the columns that sum to one and we learn, for example, that the proportion of bad characters that are secret is around 63%. As the number of cells in these tables gets large, it becomes much easier to make sense of your data using graphics. The bar chart is still a good choice, but we're going to need to add some options.
+
+```{r}
+prop.table(tab_cnt, 1)
+
+prop.table(tab_cnt, 2)
+```
+
+Here is the code for the bar chart based on counts. We want to condition on whatever is on the x axis and stretch those bars to each add up to a total proportion of 1, so we add the position equals fill option to the geom bar function. Let's add one additional layer: a change to our y axis to indicate we're looking at proportions.
+
+**4. Conditional bar chart**
+
+When we run this code at the console, we get a plot that reflects our table of proportions after we had conditioned on id.
+
+```{r}
+ggplot(comics_filtered, aes(x = id, fill = align)) +
+  geom_bar(position = 'fill') + 
+  ylab('proportion')
+```
+
+While the proportion of secret characters that are bad is still large, it's actually less than  the proportion of bad characters in those that are listed as unknown. 
+
+We get a very different picture if we condition instead on alignment. The only change needed in the code is to swap the positions of the names of the variables. This results in a plot where we've conditioned on alignment and we learn that within characters that are bad, the greatest proportion of those are indeed secret. This might seem paradoxical, but it's just a result of having different numbers of cases in each single level.
+
+```{r}
+ggplot(comics_filtered, aes(x = align, fill = id)) +
+  geom_bar(position = 'fill') + 
+  ylab('proportion')
+```
+
+**5. Let's practice!**
+
+Ok, now you try experimenting with conditional proportions.
+
+## **Counts vs. proportions (2)**
+
+Bar charts can tell dramatically different stories depending on whether they represent counts or proportions and, if proportions, what the proportions are conditioned on. To demonstrate this difference, you'll construct two barcharts in this exercise: one of counts and one of proportions.
+
+**Instructions**
+
+- Create a stacked barchart of `gender` counts with `align` on the x-axis.
+- Create a stacked barchart of `gender` proportions with `align` on the x-axis by setting the `position` argument to `geom_bar()` equal to `"fill"`.
+
+```{r}
+# Plot of gender by align
+ggplot(comics_filtered, aes(x = align, fill = gender)) +
+  geom_bar()
+  
+# Plot proportion of gender, conditional on align
+ggplot(comics_filtered, aes(x = align, fill = gender)) + 
+  geom_bar(position = 'fill') +
+  ylab("proportion")
+```
+
+## **Dsitribution of one variable**
+
+**1. Distribution of one variable**
+
+You might not have noticed, but already you've been creating plots that illustrate the relationship between two variables in your dataset. It's a bit unusual to lead with this, but it gets you thinking early about the multivariate structure that is found in most real datasets. Now, let's zoom in on working with just a single variable.
+
+**2. Marginal distribution**
+
+To compute a table of counts for a single variable like id, just provide vector into into the table function by the sole argument. One way to think of what we've done is to take the original two-way table and then, sum the cells across each level of align. Since we've summed over the margins of the other variables, this is sometimes known as a marginal distribution.
+
+```{r}
+table(comics_filtered$id)
+
+tab_cnt <- table(comics_filtered$id, comics_filtered$align)
+tab_cnt
+```
+
+**3. Simple barchart**
+
+The syntax to create the simple bar chart is straightforward as well, just remove the fill equals align argument.
+
+```{r}
+ggplot(comics_filtered, aes(x = id)) +
+  geom_bar()
+```
+
+**4. Faceting**
+
+Another useful way to form the distribution of a single variable is to condition on a particular value of another variable. We might be interested, for example, in the distribution of id for all neutral characters. We could either filter the dataset and build a barchart using only cases where alignment was neutral, or we could use a technique called faceting. Faceting breaks the data into subsets based on the levels of a categorical variable and then constructs a plot for each.
+
+**5. Faceted barcharts**
+
+To implement this in ggplot2, we just need to add a faceting layer: the facet wrap function, then a tilde, which can be read as "broken down by" and then our variable "align". The result is three simple bar charts side-by-side, the first one corresponding to the distribution of id within all cases that have a bad alignment, and so on, for good and neutral alignments. If this plot feels familiar, it should.
+
+
+```{r}
+ggplot(comics_filtered, aes(x = id)) + 
+  geom_bar() +
+  facet_wrap(~ align) +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+**6. Faceting vs. stacking**
+
+In essence, it's a rearrangement of the stacked bar charts that we considered at the beginning of the chapter.
+
+Each facet in the plot on the left corresponds to a single stacked bar in the plot on the right. They allow you to get a sense the distribution of a single variable, by looking at a single facet or a single stacked bar or the association between the variables, by looking across facets or across stacked bars.
+
+A discussion of plots for categorical data wouldn't be complete without some mention of the pie chart.
+
+**7. Pie chart vs. bar chart**
+
+The pie chart is a common way to display categorical data where the size of the slice corresponds to the proportion of cases that are in that level. Here is a pie chart for the identity variable and it looks pleasing enough. The problem with pie charts, though, is that it can be difficult to assess the relative size of the slices. Here, is the green public slice or the grey NA slice bigger?
+
+If we represent this data using a barchart the answer is obvious: the proportion of public is greater. For that reason, it's generally a good idea to stick to barcharts.
+
+**8. Let's practice!**
+
+Ok, now it's your turn to practice with simple barcharts and faceting.
+
+## **Marginal barchart**
+
+If you are interested in the distribution of alignment of *all* superheroes, it makes sense to construct a barchart for just that single variable.
+
+You can improve the interpretability of the plot, though, by implementing some sensible ordering. Superheroes that are `"Neutral"` show an alignment between `"Good"` and `"Bad"`, so it makes sense to put that bar in the middle.
+
+**Instructions**
+
+- Reorder the levels of `align` using the `factor()` function so that printing them reads `"Bad"`, `"Neutral"`, then `"Good"`.
+- Create a barchart of counts of the `align` variable.
+
+```{r}
+# Change the order of the levels in align
+comics_filtered$align <- factor(comics_filtered$align, 
+                       levels = c('Bad', 'Neutral', 'Good'))
+
+# Create plot of align
+ggplot(comics_filtered, aes(x = align)) + 
+  geom_bar()
+```
+
+## **Conditional barchart**
+
+Now, if you want to break down the distribution of alignment based on gender, you're looking for conditional distributions.
+
+You could make these by creating multiple filtered datasets (one for each gender) or by faceting the plot of alignment based on gender. As a point of comparison, we've provided your plot of the marginal distribution of alignment from the last exercise.
+
+**Instructions**
+
+- Create a barchart of `align` faceted by `gender`.
+
+```{r}
+# Plot of alignment broken down by gender
+ggplot(comics_filtered, aes(x = align)) + 
+  geom_bar() +
+  facet_wrap(~ gender)
+```
+
+## **Improve piechart**
+
+The piechart is a very common way to represent the distribution of a single categorical variable, but they can be more difficult to interpret than barcharts.
+
+This is a piechart of a dataset called `pies` that contains the favorite pie flavors of 98 people. Improve the representation of these data by constructing a barchart that is ordered in descending order of count.
+
+**Instructions**
+
+- Use the code provided to reorder the levels of `flavor` so that they're in descending order by count.
+- Create a barchart of `flavor` and orient the labels vertically so that they're easier to read. The default coloring may look drab by comparison, so change the fill of the bars to `"chartreuse"`.
+
+```{r}
+# Put levels of flavor in descending order
+lev <- c("apple", "key lime", "boston creme", "blueberry", "cherry", "pumpkin", "strawberry")
+pies$flavor <- factor(pies$flavor, levels = lev)
+
+# Create barchart of flavor
+ggplot(pies, aes(x = flavor)) + 
+  geom_bar(fill = 'chartreuse') + 
+  theme(axis.text.x = element_text(angle = 90))
+```
+

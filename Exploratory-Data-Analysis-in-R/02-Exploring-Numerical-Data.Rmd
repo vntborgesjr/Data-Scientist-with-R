@@ -1,0 +1,305 @@
+---
+title: "02 - Exploring Numerical Data"
+output: html_notebook
+---
+
+```{r, echo = FALSE, message = FALSE}
+library(tidyverse)
+?read_csv
+comics <- read_csv('/home/cla/Documentos/Vitor/DataCamp/Data-Scientist-with-R/Datasets/comics.csv', col_types = 'ffffffffif')
+
+```
+
+## **Exploring numerical data**
+
+**1. Exploring numerical data**
+
+In this chapter, we'll broaden our tool box of exploratory techniques to encompass numerical data. Numerical data are data that take the form of number, but where those numbers actually represent a value on the number line. The dataset that we'll be working with is one that has information on the cars that were for sale in the US in a certain year.
+
+**2. Cars dataset**
+
+We can use the structure function, `str()`, to learn more about each of the variables. We learn that we have 428 observations, or cases, and 19 variables. Unlike most displays of data, the structure function puts each of the variables as a row, with its name followed by its data type, followed by the first several values. The car names are character strings, which are like factors, except its common for every case to take a unique value. L-o-g-i, that's for logical variables, another simple case of a categorical variable where there are only two levels. For example, each car will take either TRUE or FALSE depending on if it is a sports car. We can see that the last set of variables are all either i-n-t for integer or n-u-m for numerical. They're actually both numerical variables, but the integers are discrete and the numerical is continuous. If you look at ncyl, that's the number of cylinders, it's listed as an integer, but there are only a few different values that it can take, so it actually behaves a bit like categorical variable. Let's construct some plots to help us explore this data.
+
+**3. Dotplot**
+
+The most direct way to represent numerical data is with a dot plot, where each case is a dot that's placed at it's appropriate value on the x axis, then stacked as other cases take similar values. This is a form of graphic where there is zero information loss; you could actually rebuild the dataset perfectly if you were given this plot. As you can imagine, though, these plots start to get difficult to read as the number of cases gets very large.
+
+**4. Histogram**
+
+One of the most common plots to use is a histogram, which solves this problem by aggregating the dots into bins on the x axis, then mapping the height of the bar to the number of cases that fall into that bin. Because of the binning, it's not possible to perfectly reconstruct the dataset: what we gain is a bigger picture of the shape of the distribution. If the stepwise nature of the histogram irks you, then you'll like the density plot.
+
+**5. Density plot**
+
+The density plot represents the shape of the histogram using a smooth line. This provides an ever bigger picture representation of the shape of the distribution, so you'll only want to use it when you have a large number of cases. If you'd prefer a more abstracted sense of this distribution, we could identify the center of the distribution, the values that mark off the middle half of the data, and the values that mark off the vast majority of the data.
+
+**6. Boxplot**
+
+These values can be used to construct a boxplot, where the box represents the central bulk of the data, the whiskers contain almost all the data, and the extreme values are represented as points. You'll see the syntax for this is a bit different: we'll discuss why later on in the chapter.
+
+**7. Faceted histogram**
+
+Let's use a histogram to look at the distribution of highway mileage faceted based on whether or not the car is a pickup truck by adding a facet wrap layer. It gives us a message, letting us know that it has picked a binwidth for us and a warning that there were 14 missing values. The plot that it provides is informative: it's clear that are many more non-pickups than pickups.
+
+**8. Faceted histogram**
+
+It also shows that the typical pickup gets much lower mileage than the typical non-pickup. We also see that non-pickups have more variability than do the pickups.
+
+**9. Let's practice!**
+
+Keep an eye on these two components: a typical observation and the variability of a distribution as you practice exploring this numerical data.
+
+## **Faceted histogram**
+
+In this chapter, you'll be working with the `cars` dataset, which records characteristics on all of the new models of cars for sale in the US in a certain year. You will investigate the distribution of mileage across a categorial variable, but before you get there, you'll want to familiarize yourself with the dataset.
+
+**Instructions**
+
+The `cars` dataset has been loaded in your workspace.
+
+- Load the `ggplot2` package.
+- View the size of the data and the variable types using `str()`.
+- Plot a histogram of `city_mpg` faceted by `suv`, a logical variable indicating whether the car is an SUV or not.
+
+```{r}
+# Load package
+
+
+# Learn data structure
+
+
+# Create faceted histogram
+ggplot(cars, aes(x = ___)) +
+  geom_histogram() +
+  facet_wrap(~ ___)
+```
+
+## **Boxplots and density plots**
+
+The mileage of a car tends to be associated with the size of its engine (as measured by the number of cylinders). To explore the relationship between these two variables, you could stick to using histograms, but in this exercise you'll try your hand at two alternatives: the box plot and the density plot.
+
+**Instructions**
+
+A quick look at `unique(cars$ncyl)` shows that there are more possible levels of `ncyl` than you might think. Here, restrict your attention to the most common levels.
+
+- Filter cars to include only cars with 4, 6, or 8 cylinders and save the result as `common_cyl`. The `%in%` operator may prove useful here.
+- Create side-by-side box plots of `city_mpg` separated out by `ncyl`.
+- Create overlaid density plots of `city_mpg` colored by `ncyl`.
+
+```{r}
+# Filter cars with 4, 6, 8 cylinders
+common_cyl <- filter(___, ___)
+
+# Create box plots of city mpg by ncyl
+ggplot(___, aes(x = as.factor(___), y = ___)) +
+  geom_boxplot()
+
+# Create overlaid density plots for same data
+ggplot(common_cyl, aes(x = ___, fill = as.factor(___))) +
+  geom_density(alpha = .3)
+```
+
+## **Distribution of one variable**
+
+**1. Distribution of one variable**
+
+If you're interested in the distribution of just a single numerical variable, there are three ways you can get there. The first is to look at the marginal distribution.
+
+**2. Marginal vs. conditional**
+
+For example, the simple distribution of highway mileage. If we want to look at the distribution on a different subset of the data, say cars that are pickup trucks, we can add a facet wrap layer to see the distribution for both pickups and non-pickups.
+
+**3. Building a data pipeline**
+
+There's another scenario, though, in which we'd want to look at the distribution of this variable on a more specific subset of the data, say the cars which have engines less than 2 (point) 0 liters in size. Since engine size is numerical, it won't work to simply use facets. Instead, we have to filter. Filter is a function in the dplyr package used to keep only the rows that meet a particular condition. In this case, we want the rows where the engine size variable is less than 2 (point) 0. Notice that we're using the pipe operator, which takes the output of whatever is before it, and pipes it as input into the next function. Then we save this filtered dataset into a new dataset called cars2. The second step is then to construct the plot using this new dataset. This construction is a bit inefficient though, since we save this intermediate dataset, cars2, which we're not really interested in.
+
+We can solve this by linking this two components into a continuous data pipeline. We start with the raw data, which we pipe into the filter, the result of which gets piped into the ggplot function, which then adds a layer to complete the plot. This is a powerful and very general paradigm: you can start with a raw dataset, process that dataset using dplyr linked by pipes, then visualize it by adding up layers of a ggplot.
+
+**4. Filtered and faceted histogram**
+
+Let's run that code in the console. The resulting plot makes some sense. These are cars with small engines that we're looking at and small engines are usually more efficient, so we're seeing higher mileages than when we looked at the whole dataset. One thing that's important to know about histograms like this one is that your sense of the shape of the distribution can change depending on the bin width that is selected.
+
+**5. Wide bin width**
+
+`ggplot2` does its best to select a sensible bin width, but you can override that option by specifying it yourself. If we use a binwidth of 5, the result is a histogram that's much smoother. The same principle holds for density plots.
+
+**6. Density plot**
+
+Let's pull up a density plot for the same data. It looks reasonably smooth, but if we wanted to make it smoother, we can increase what's known as the bandwidth of plot.
+
+**7. Wide bandwidth**
+
+When we increase that to 5, we get a plot that smooths over the blip on the right side a bit more. But how do we decide what the "best" binwidth or bandwidth is for our plots? Usually the defaults are sensible, but it's good practice to tinker with both smoother and less-smooth versions of the plots to focus on different scales of structure in the data.
+
+**8. Let's practice!**
+
+Let's try putting these techniques into practice.
+
+## **Marginal and conditional histograms**
+
+Now, turn your attention to a new variable: `horsepwr.` The goal is to get a sense of the marginal distribution of this variable and then compare it to the distribution of horsepower conditional on the price of the car being less than $25,000.
+
+You'll be making two plots using the "data pipeline" paradigm, where you start with the raw data and end with the plot.
+
+**Instructions**
+
+- Create a histogram of the distribution of `horsepwr` across all cars and add an appropriate title. Start by piping in the raw dataset.
+- Create a second histogram of the distribution of horsepower, but only for those cars that have an `msrp` less than $25,000. Keep the limits of the x-axis so that they're similar to that of the first plot, and add a descriptive title.
+
+```{r}
+# Create hist of horsepwr
+cars %>%
+  ggplot(aes(___)) +
+  ___ +
+  ggtitle(___)
+
+# Create hist of horsepwr for affordable cars
+cars %>% 
+  filter(___) %>%
+  ggplot(aes(___)) +
+  ___ +
+  xlim(c(90, 550)) +
+  ggtitle(___)
+```
+
+## **Three binwidths interpretation**
+
+Before you take these plots for granted, it's a good idea to see how things change when you alter the binwidth. The binwidth determines how smooth your distribution will appear: the smaller the binwidth, the more jagged your distribution becomes. It's good practice to consider several binwidths in order to detect different types of structure in your data.
+
+**Instructions**
+
+Create the following three plots, adding a title to each to indicate the binwidth used:
+
+- A histogram of horsepower (i.e. `horsepwr`) with a binwidth of 3.
+- A second histogram of horsepower with a binwidth of 30.
+- A third histogram of horsepower with a binwidth of 60.
+
+```{r}
+# Create hist of horsepwr with binwidth of 3
+cars %>%
+  ggplot(aes(___)) +
+  geom_histogram(binwidth = ___) +
+  ggtitle(___)
+
+# Create hist of horsepwr with binwidth of 30
+
+
+# Create hist of horsepwr with binwidth of 60
+
+
+```
+
+## **Box plots**
+
+**1. Box plots**
+
+By now you've had quite a bit of experience using box plots to visualize the distribution of numerical data, but let's dig deeper to understand how exactly they are constructed by starting with a dot plot.
+
+The box plot is based around three summary statistics: the first quartile of the data, the second quartile, and the third quartile. You might be more familiar with the second quartile as the median, the value that's in the middle of the dataset. It's the second quartile because two quarters, or half, of the data is below it, and half is above it.
+
+The first quartile, then, has only one quarter of the data below it and the third quartile has three quarters of the data below it. These three numbers form the box in the box plot, with the median in the middle and the first and third quartiles as the edges. One thing you always know when looking at a box plot is that the middle half of the data is inside this box. There are various rules for where to draw the whiskers, the lines that extend out from the box.
+
+The one used by ggplot2 is to draw it out 1 (point) 5 times the length of the box, then draw it into the first observation that is encountered. The particular rule is less important than the interpretation, which is that the whiskers should encompass nearly all of the data.
+
+Any data that is not encompassed by either the box or the whiskers is represented by a point. This is one of the handy features of a box plot: it flags for you points that are far away from the bulk of the data, a form of automated outlier detection.
+
+**2. Side-by-side box plots**
+
+Let's revisit the side-by-side box plots that you constructed in your exercise. This shows the distribution of city mileage broken down by cars that have 4 cylinders, 6 cylinders, and 8 cylinders. We can look to the heavy line in the boxes and learn that that median mileage is greatest for 4 cylinders and less for 6 cylinders. For 8 cylinder cars, something odd is going on: the median is very close to the third quartile. In terms of variability, the 4 cylinder cars again have the widest box and whiskers that extend the farthest. The middle half of the data in 6 cylinder cars spans a very small range of values, shown by the narrow box. Finally we see some outliers: one 6 cylinder car with low mileage and several 4 cylinder cars with high mileage.
+
+If you're wondering about that highest outlier in the 4 cylinder category, that is indeed a hybrid vehicle. Notice that in terms of syntax, ggplot actually expects you to be plotting several box plots side-by-side. If you want to see just a single one, you can just set the x argument to 1. Box plots really shine in situations where you need to compare several distributions at once and also as a means to detect outliers. One of their weaknesses though is that they have no capacity to indicate when a distribution has more than one hump or "mode".
+
+Consider the density plot here, there are two distinct modes. If we construct a box plot of the same distribution, it sweeps this important structure under the rug and will always only provide a single box.
+
+**3. Let's practice!**
+
+Now that you know a bit more about how box plots are constructed, it's time for you to construct some yourself.
+
+## **Box plots for outliers**
+
+In addition to indicating the center and spread of a distribution, a box plot provides a graphical means to detect outliers. You can apply this method to the `msrp` column (manufacturer's suggested retail price) to detect if there are unusually expensive or cheap cars.
+
+**Instructions**
+
+- Construct a box plot of `msrp`.
+- Exclude the largest 3-5 outliers by filtering the rows to retain cars less than $100,000. Save this reduced dataset as `cars_no_out`.
+- Construct a similar box plot of `msrp` using this reduced dataset. Compare the two plots.
+
+```{r}
+# Construct box plot of msrp
+cars %>%
+  ggplot(aes(x = 1, y = ___)) +
+  geom_boxplot()
+
+# Exclude outliers from data
+cars_no_out <- cars %>%
+  filter(___)
+
+# Construct box plot of msrp using the reduced dataset
+cars_no_out %>%
+  ___ +
+  ___
+```
+
+## **Plot selection**
+
+Consider two other columns in the `cars` dataset: `city_mpg` and `width`. Which is the most appropriate plot for displaying the important features of their distributions? Remember, both density plots and box plots display the central tendency and spread of the data, but the box plot is more robust to outliers.
+
+**Instructions**
+
+Use density plots or box plots to construct the following visualizations. For each variable, try both plots and submit the one that is better at capturing the important structure.
+
+- Display the distribution of `city_mpg`.
+- Display the distribution of `width`.
+
+```{r}
+# Create plot of city_mpg
+cars %>%
+  ggplot(___) +
+  ___
+
+# Create plot of width
+cars %>% 
+  ggplot(___) +
+  ___
+```
+
+## **Visualization in higher dimensions**
+
+**1. Visualization in higher dimensions**
+
+In this course, we've been encouraging you to think about the question of "what is the association between this variable and that one" and "if you condition on one level of this variable, how does the distribution of another change". The answers to these questions require multivariate thinking and it is an essential skill in reasoning about the structure of real data. But why stop at only two variables?
+
+**2. Plots for 3 variables**
+
+One simple extension that allows you to plot the association between three variables is the facet grid. Let's build a plot that can tell us about msrp, the manufacturer's suggested retail price. Since that variable is numerical, there are several plots we could use. Let's go with a density plot. By adding a facet grid layer, we can break that distribution down by two categorical variables, separated by a tilde. Whichever variable you put before the tilde will go in the rows of the grid and the the one that goes after will form the columns. When we run this code, we get a grid of four density plots, one for every combination of levels of the two categorical variables. Unfortunately, this plot is difficult to interpret since it doesn't remind us which variable is on the rows versus columns. We can solve this by adding an option to the facet grid layer: labeller is equal to label both. OK, now we can learn something. If we look at rear wheel drive pickups, there appear to actually be two modes, but in general, they're a bit cheaper than front wheel drive pickups. In non-pickups, however, its the rear-wheel drive ones that are generally pricier.
+
+One thing we should check before moving on is the number of cases that go into each of these 4 plots. If we form a contingency table of rear wheel and pickup, we learn that there are relatively few rear wheel drive cars in this dataset. While this would be plainly obvious had we used histograms, density plots normalize each distribution so that they have the same area. The take home message is that our interpretation is still valid, but when we're making comparisons across the rear wheel variable, there are fewer cases to compare.
+
+**3. Higher dimensional plots**
+
+This is just the tip of the iceberg of high dimensional data graphics. Anything you can discern visually, things like shape, size, color, pattern, movement, in addition to relative location, can be mapped to a variable and plotted alongside other variables.
+
+**4. Let's practice!**
+
+Alright, now it's your turn to practice.
+
+## **Three variable plot**
+
+Faceting is a valuable technique for looking at several conditional distributions at the same time. If the faceted distributions are laid out in a grid, you can consider the association between a variable and two others, one on the rows of the grid and the other on the columns.
+
+**Instructions**
+
+`common_cyl`, which you created to contain only cars with 4, 6, or 8 cylinders, is available in your workspace.
+
+- Using `common_cyl`, create a histogram of `hwy_mpg`.
+- Grid-facet the plot rowwise by `ncyl` and columnwise by `suv`.
+- Add a title to your plot to indicate what variables are being faceted on.
+```{r}
+# Facet hists using hwy mileage and ncyl
+common_cyl %>%
+  ggplot(aes(x = ___)) +
+  geom_histogram() +
+  facet_grid(___ ~ ___) +
+  ggtitle(___)
+```
+

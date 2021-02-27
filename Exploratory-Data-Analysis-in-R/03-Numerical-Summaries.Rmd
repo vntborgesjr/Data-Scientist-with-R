@@ -6,8 +6,17 @@ output: html_notebook
 ```{r, echo = FALSE, message = FALSE}
 library(tidyverse)
 
-cars <- read_csv('/home/cla/Documentos/Vitor/DataCamp/Data-Scientist-with-R/Datasets/cars.csv')
+life <- read_csv('/home/cla/Documentos/Vitor/DataCamp/Data-Scientist-with-R/Datasets/life.csv')
 
+income <- read_csv('/home/cla/Documentos/Vitor/DataCamp/Data-Scientist-with-R/Datasets/income.csv')
+
+life <- merge(life, income, by.x = 'fips', by.y = 'GeoFips')
+life$Income <- as.integer(life$Income)
+
+life <- life %>% 
+  group_by(State, County) %>% 
+  summarise(expectancy = mean(c(`Female life expectancy (years)`, `Male life expectancy (years)`), na.rm = TRUE), income = min(Income)) %>% 
+  select(state = State, county = County, expectancy, income)
 ```
 
 ## **Measures of center**

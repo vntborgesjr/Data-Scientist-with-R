@@ -1,0 +1,340 @@
+---
+title: "04 - Case Study"
+output: html_notebook
+---
+
+```{r, echo = FALSE, message = FALSE}
+library(tidyverse)
+library(patchwork)
+
+life <- read_csv('/home/cla/Documentos/Vitor/DataCamp/Data-Scientist-with-R/Datasets/life.csv')
+
+income <- read_csv('/home/cla/Documentos/Vitor/DataCamp/Data-Scientist-with-R/Datasets/income.csv')
+
+life <- merge(life, income, by.x = 'fips', by.y = 'GeoFips')
+life$Income <- as.integer(life$Income)
+
+life <- life %>% 
+  group_by(State, County) %>% 
+  summarise(expectancy = mean(c(`Female life expectancy (years)`, `Male life expectancy (years)`), na.rm = TRUE), income = median(Income)) %>% 
+  select(state = State, county = County, expectancy, income)
+
+gapminder <- gapminder::gapminder
+```
+
+## **Introducing the data**
+
+**1. Introducing the data**
+
+In this chapter, you'll get a chance to put to use what you know about EDA in exploring a new dataset.
+
+**2. Email data set**
+
+The email dataset contains information on all of the emails received by a single email account in a single month. Each email is a case, so we see that this email account received 3,921 emails. Twenty-one different variables were recorded on each email, some of which are numerical, others are categorical. Of primary interest is the first column, a categorical variable indicating whether or not the email is spam. This was created by actually reading through each email individually and deciding if it looked like spam or not. The subsequent columns were easier to create. to multiple is TRUE if the email was addressed to more than one recipient and FALSE otherwise. image is the number of images attached in the email. It's important that you have a full sense of what each of the variables mean, so you'll want to start your exercises by reading about them in the help file. One of your guiding questions throughout this chapter is: what characteristics of an email are associated with it being spam? Numerical and graphical summaries are a great way of starting to answer that question. Let's review the main graphical tools that we have for numerical data.
+
+**3. Histograms**
+
+Histograms take continuous data and aggregate it into bins, then draw a bar to a height that corresponds to the number of cases in that bin. They have a tuning parameter that you should play with, the binwidth, to explore the shape of the distribution at different scales.
+
+If you're interested in building histograms broken down based on a categorical variable, they're a good candidate for faceting, which can be done with the facet wrap layer.
+
+**4. Boxplots**
+
+Box plots excel at comparing multiple distributions and this is reflected in the ggplot syntax that requires you to put something on the x axis. If variable has two levels, you'll get two side-by-side box plots. The box plot uses robust measures, the median and the IQR, to draw the box, and also flags potential outliers for you. A downside, however, is that it can hide more complicated shapes, such as a bimodal distribution.
+
+To get a single box plot, just map x to the number 1.
+
+**5. Density plots**
+
+Density plots summarize the data by drawing a smooth line to represent its shape. Similar to histograms, you can change the smoothness of a density plot by changing the bandwidth parameter, which you can add to the geom density function. These can be faceted just like histograms, or they can be overlaid on one another, by mapping the color of the fill of the distribution to a second variable. If you want the colors to be somewhat transparent, specify an alpha parameter between 0 and 1.
+
+**6. Let's practice!**
+
+With that brief introduction, let's dive into this new dataset.
+
+## **Spam and num_char**
+
+Is there an association between spam and the length of an email? You could imagine a story either way:
+
+- *Spam is more likely to be a short message tempting me to click on a link, or*
+- *My normal email is likely shorter since I exchange brief emails with my friends all the time.*
+
+Here, you'll use the `email` dataset to settle that question. Begin by bringing up the help file and learning about all the variables with `?email`.
+
+As you explore the association between spam and the length of an email, use this opportunity to try out linking a `dplyr` chain with the layers in a `ggplot2` object.
+
+**Instructions**
+
+Using the `email` dataset
+
+- Load the packages `ggplot2`, `dplyr`, and `openintro`.
+Compute appropriate measures of the center and spread of `num_char` for both spam and not-spam using `group_by()` and `summarize()`. No need to name the new columns created by `summarize()`.
+- Construct side-by-side box plots to visualize the association between the same two variables. It will be useful to `mutate()` a new column containing a log-transformed version of num_char.
+
+```{r, message = FALSE, warning = FALSE}
+# Load packages
+
+
+
+
+# Compute summary statistics
+email %>%
+  ___ %>%
+  ___
+
+# Create plot
+email %>%
+  mutate(log_num_char = ___) %>%
+  ggplot(aes(x = ___, y = log_num_char)) +
+  ___
+```
+
+## **Sapm and  !!!**
+
+Let's look at a more obvious indicator of spam: exclamation marks. `exclaim_mess` contains the number of exclamation marks in each message. Using summary statistics and visualization, see if there is a relationship between this variable and whether or not a message is spam.
+
+Experiment with different types of plots until you find one that is the most informative. Recall that you've seen:
+
+- Side-by-side box plots
+- Faceted histograms
+- Overlaid density plots
+
+**Instructions**
+
+The `email` dataset is still available in your workspace.
+
+- Calculate appropriate measures of the center and spread of `exclaim_mess` for both spam and not-spam using `group_by()` and `summarize()`.
+- Construct an appropriate plot to visualize the association between the same two variables, adding in a log-transformation step if necessary.
+- If you decide to use a log transformation, remember that `log(0)` is `-Inf` in R, which isn't a very useful value! You can get around this by adding a small number (like `0.01`) to the quantity inside the `log()` function. This way, your value is never zero. This small shift to the right won't affect your results.
+
+```{r, massege = FALSE, warning = FALSE}
+# Compute center and spread for exclaim_mess by spam
+
+
+
+
+# Create plot for spam and exclaim_mess
+
+
+```
+
+## **Check-in 1**
+
+**1. Check-in 1**
+
+Let's review what you learned in the last several exercises.
+
+**2. Review**
+
+The box plots show the association between whether or not an email is spam and the length of the email, as measured by the log number of characters. In this dataset, the typical spam message is considerably shorter than the non-spam message, but there is still a reasonable amount of overlap in the two distributions of length.
+
+When you looked at the distribution of spam and the number of exclamation marks used, you found that both distributions are heavily right skewed: there only a few instances of many exclamation marks being using and many many more of 0 or 1 being used. It also bucks the expectation that spam messages will be filled with emphatic exclamation marks to entice you to click on their links. If anything, here it's actually not-spam that typically has more exclamation marks. The dominant feature of the exclaim mess variable, though, is the large proportion of cases that report zero or on this log scale, -4 (point) 6 exclamation marks. This is a common occurrence in data analysis that is often termed "zero-inflation", and there are several common ways to think about those zeros.
+
+**3. Zero inflation strategies**
+
+One approach says that there are two mechanisms going on: one generating the zeros and the other generating the non-zeros, so we will analyze these two groups separately. A simpler approach is the one that thinks of the variable as actually only taking two values, zero or not-zero, and treating it like a categorical variable. If you want to take the latter approach, the first step will be to mutate this new variable. Here, our condition is simply that the exclaim mess variable is zero. Then we can pipe that new variable into a bar chart and facet it based on spam. In the resulting plot, yes, we've lost a lot of information. But it's become very clear
+
+that spam is more likely to contain no exclamation marks, while in spam, the opposite is true. Speaking of bar charts, let's review their layout.
+
+One way to view associations between multiple categorical variables is like this, with faceting.
+
+**5. Barchart options**
+
+Another way that we've seen is using a stacked bar chart. For that plot, you move the second variable from the facet layer to the fill argument inside the aesthetics function. The other consideration you have to make is if you're more interested in counts or proportions. If the latter, you'll want to normalize the plot, which you can do by adding the position equals fill argument to the bar geom. The result is a series of conditional proportions, where you're conditioning on whichever variable you're in.
+
+**6 Let's practice!**
+
+OK, let's get back to exploring the email dataset.
+
+## **Collapsing levels**
+
+If it was difficult to work with the heavy skew of `exclaim_mess`, the number of images attached to each email (`image`) poses even more of a challenge. Run the following code at the console to get a sense of its distribution:
+
+```{r, eval = FALSE}
+table(email$image)
+```
+
+Recall that this tabulates the number of cases in each category (so there were 3811 emails with 0 images, for example). Given the very low counts at the higher number of images, let's collapse `image` into a categorical variable that indicates whether or not the email had at least one image. In this exercise, you'll create this new variable and explore its association with spam.
+
+**Instructions**
+
+Starting with `email`, form a continuous chain that links together the following tasks:
+
+- Create a new variable called `has_image` that is `TRUE` where the number of images is greater than zero and `FALSE` otherwise.
+- Create an appropriate plot with `email` to visualize the relationship between `has_image` and `spam`.
+
+```{r, message = FALSE, warning = FALSE}
+# Create plot of proportion of spam by image
+email %>%
+  mutate(has_image = ___) %>%
+  ggplot(aes(x = ___, fill = ___)) +
+  geom_bar(position = ___)
+```
+
+## **Data Integraty**
+
+In the process of exploring a dataset, you'll sometimes come across something that will lead you to question how the data were compiled. For example, the variable `num_char` contains the number of characters in the email, in thousands, so it could take decimal values, but it certainly shouldn't take negative values.
+
+You can formulate a test to ensure this variable is behaving as we expect:
+
+```{r, eval = FALSE}
+email$num_char < 0
+```
+
+If you run this code at the console, you'll get a long vector of logical values indicating for each case in the dataset whether that condition is `TRUE`. Here, the first 1000 values all appear to be `FALSE`. To verify that all of the cases indeed have non-negative values for `num_char`, we can take the sum of this vector:
+
+```{r, eval = FALSE}
+sum(email$num_char < 0)
+```
+
+This is a handy shortcut. When you do arithmetic on logical values, R treats `TRUE` as `1` and `FALSE` as `0`. Since the sum over the whole vector is zero, you learn that every case in the dataset took a value of `FALSE` in the test. That is, the `num_char` column is behaving as we expect and taking only non-negative values.
+
+**Instructions**
+
+Consider the variables `image` and `attach`. You can read about them with `?email`, but the help file is ambiguous: do attached images count as attached files in this dataset?
+
+Design a simple test to determine if images count as attached files. This involves creating a logical condition to compare the values of the two variables, then using `sum()` to assess every case in the dataset. Recall that the logical operators are `<` for less than, <= for less than or equal to, `>`  for greater than, `>=` for greater than or equal to, and `==` for equal to.
+
+```{r, message = FALSE, warning = FLASE}
+# Test if images count as attachments
+
+```
+
+## **Answering questions with chains**
+
+When you have a specific question about a dataset, you can find your way to an answer by carefully constructing the appropriate chain of R code. For example, consider the following question:
+
+*"Within non-spam emails, is the typical length of emails shorter for those that were sent to multiple people?"*
+
+This can be answered with the following chain:
+```{r, eval = FALSE}
+email %>%
+   filter(spam == "not-spam") %>%
+   group_by(to_multiple) %>%
+   summarize(median(num_char))
+
+```
+
+The code makes it clear that you are using `num_char` to measure the length of an email and `median()` as the measure of what is typical. If you run this code, you'll learn that the answer to the question is "yes": the typical length of non-spam sent to multiple people is a bit lower than those sent to only one person.
+
+This chain concluded with summary statistics, but others might end in a plot; it all depends on the question that you're trying to answer.
+
+**Instructions**
+
+Build a chain to answer each of the following questions, both about the variable `dollar`.
+
+- For emails containing the word "dollar", does the typical spam email contain a greater number of occurrences of the word than the typical non-spam email? Create a summary statistic that answers this question.
+- If you encounter an email with greater than 10 occurrences of the word "dollar", is it more likely to be spam or not-spam? Create a barchart that answers this question.
+
+```{r, message = FALSE, warning = FALSE}
+# Question 1
+email %>%
+  filter(___) %>%
+  group_by(___) %>%
+  summarize(___)
+
+# Question 2
+email %>%
+  filter(___) %>%
+  ggplot(aes(x = ___)) +
+  geom_bar()
+```
+
+## **Check-in 2**
+
+**1. Spam and images**
+
+Let's revisit the exercise where you explored the association between whether an email has an image and whether or not its spam. The plot you created was this bar chart of proportions. I want to emphasize an important, but subtle distinction when discussing proportions like this. This plot shows the proportions of spam or not-spam within the subsets of emails that either have an image or do not. Said another way, they are conditioned on the has image variable. We get a slightly different story if we exchange the variables so that we condition on spam. Among emails that are spam, almost none of them have an image, while the proportion within non-spam is larger, but still less than 5%. If you're building a spam filter, a situation where you don't actually get to see the value of spam, it'd make more sense to think about conditioning on the has image variable.
+
+In this case, we can tell that this variable would be an awful spam filter by itself.
+
+**2. Ordering bars**
+
+When we're working with bar charts, you can often make them more readily interpretable if you give them a sensible ordering. Recall how in the last video, we collapsed all emails with at least one exclamation mark into a single level of a new two-level categorical variable.
+
+That led to this bar chart, which was informative, but you might caused you to do a double-take when you first saw it. The plot on the left gets us used to seeing the bar for the zeroes on the left, while in the plot on the right, that bar is on the right side.
+
+Let's go through how we would flip the ordering of those bars so that they agree with the plot on the left.
+
+The first step is to save the mutated categorical variable back into the dataset. The ordering of the bars isn't determined within the code for the plot, but in the way that R represents that variable. If we call levels on the new variable, it returns NULL. This is because this variable is actually a logical variable, not a factor. To set the ordering of the levels, let's convert it to a factor with the factor function, provide We can then save this variable back into the dataset.
+
+Now, when we go to make the plot with the same code, it exchanges the order of the bars for us. Here, we decided to order the bars so that it cohered with the structure of another plot. In other circumstances, you might use other criteria to choose the order including a natural ordering of the levels, arranging the bars in increasing or decreasing order of the height of the bars or alphabetical order, which is the default. In making this decision, you're thinking about emphasizing a particular interpretation of the plot and transitioning from purely exploratory graphics to expository graphics, where you seek to communicate a particular idea. This is a natural development as you continue along the process of your data analysis.
+
+**3. Let's practice!**
+
+OK, let's return back to the case study.
+
+## **What's in a number?**
+
+Turn your attention to the variable called `number`. Read more about it by pulling up the help file with `?email`.
+
+To explore the association between this variable and `spam`, select and construct an informative plot. For illustrating relationships between categorical variables, you've seen
+
+- Faceted barcharts
+- Side-by-side barcharts
+- Stacked and normalized barcharts.
+
+Let's practice constructing a faceted barchart.
+
+**Instructions**
+
+- Reorder the levels of `number` so that they preserve the natural ordering of `"none"`, then `"small"`, then `"big"`, saving to a `number_reordered` column.
+- Construct a faceted barchart of the association between `number` and `spam`.
+
+```{r, message = FALSE, warning = FALSE}
+# Reorder levels
+email$number_reordered <- ___
+
+# Construct plot of number_reordered
+___(email, ___
+  ___
+  ___
+```
+
+## **Conclusion**
+
+**1. Conclusion**
+
+In this course on Exploratory Data Analysis, our goal was to get you comfortable wading into a new dataset and provide a sense of the considerations and techniques needed to find the most important structure in your data.
+
+**2. Pie chart vs. bar chart**
+
+We started with categorical data, often the domain of the pie chart, and hopefully convinced you that bar charts are a useful tool in finding associations between variables and comparing levels to one another.
+
+**3. Faceting vs. stacking**
+
+We saw how the story can change, depending on if we're visualizing counts or proportions.
+
+**4. Histogram**
+
+From there, we moved on to numerical data and a collection of graphical techniques that are important: the histogram,
+
+**5. Density plot**
+
+the density plot, and the
+
+**6. Side-by-side box plots**
+
+box plot. Each has its strengths and weaknesses.
+
+**7. Center: mean, median, mode**
+
+In the third chapter, we discussed the common numerical measures of a distribution: measures of center, variability,
+
+**8. Shape of income**
+
+shape, plus the presence of outliers. Our life was made much easier by using the combination
+
+**9. With group_by()**
+
+of group by and summarize to compute statistics on different subsets of our data.
+
+**10. Spam and exclamation points**
+
+In the final chapter, we explored an email dataset to learn about the aspects of an email that are
+
+**11. Spam and images**
+
+associated with it being spam.
+
+It's been my pleasure to be your instructor and I hope you'll continue on with the next course in this intro stats series.

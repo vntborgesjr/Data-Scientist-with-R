@@ -5,21 +5,10 @@ output: html_notebook
 
 ```{r, echo = FALSE, message = FALSE}
 library(tidyverse)
-library(patchwork)
+library(openintro)
 
-life <- read_csv('/home/cla/Documentos/Vitor/DataCamp/Data-Scientist-with-R/Datasets/life.csv')
-
-income <- read_csv('/home/cla/Documentos/Vitor/DataCamp/Data-Scientist-with-R/Datasets/income.csv')
-
-life <- merge(life, income, by.x = 'fips', by.y = 'GeoFips')
-life$Income <- as.integer(life$Income)
-
-life <- life %>% 
-  group_by(State, County) %>% 
-  summarise(expectancy = mean(c(`Female life expectancy (years)`, `Male life expectancy (years)`), na.rm = TRUE), income = median(Income)) %>% 
-  select(state = State, county = County, expectancy, income)
-
-gapminder <- gapminder::gapminder
+email$spam <- ifelse(email$spam == 0, 'not-spam', 'spam')
+email$spam <- factor(email$spam, levels = c('not-spam', 'spam'))
 ```
 
 ## **Introducing the data**
@@ -73,20 +62,20 @@ Compute appropriate measures of the center and spread of `num_char` for both spa
 
 ```{r, message = FALSE, warning = FALSE}
 # Load packages
-
-
-
+library(ggplot2)
+library(dplyr)
+library(openintro)
 
 # Compute summary statistics
 email %>%
-  ___ %>%
-  ___
+  group_by(spam) %>%
+  summarise(median(num_char), IQR(num_char))
 
 # Create plot
 email %>%
-  mutate(log_num_char = ___) %>%
-  ggplot(aes(x = ___, y = log_num_char)) +
-  ___
+  mutate(log_num_char = log(num_char)) %>%
+  ggplot(aes(x = spam, y = log_num_char)) +
+  geom_boxplot()
 ```
 
 ## **Sapm and  !!!**
@@ -109,12 +98,15 @@ The `email` dataset is still available in your workspace.
 
 ```{r, massege = FALSE, warning = FALSE}
 # Compute center and spread for exclaim_mess by spam
-
-
-
+email %>% 
+  group_by(spam) %>% 
+  summarise(median(exclaim_mess), IQR(exclaim_mess))
 
 # Create plot for spam and exclaim_mess
-
+email %>% 
+  ggplot(aes(x = log(exclaim_mess + 0.01))) +
+  geom_histogram(bins = 5) +
+  facet_wrap(~ spam)
 
 ```
 

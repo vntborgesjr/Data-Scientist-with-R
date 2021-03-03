@@ -1,0 +1,286 @@
+---
+title: "01 - Visualizing two variables"
+output: html_notebook
+---
+
+```{r, echo = FALSE, message = FALSE}
+library(openintro)
+library(Stat2Data)
+library(ggplot2)
+library(dplyr)
+data('possum')
+data("ncbirths")
+data('mammals')
+data('bdims')
+data('smoking')
+mlbBat10 <- mlbbat10
+```
+
+## **Visualizing bivariate relationships**
+
+**1. Visualizing bivariate relationships**
+
+Hi, I’m Ben Baumer. I’m an Assistant Professor in the Statistical & Data Sciences Program at Smith College and I’ll be your instructor for this course on correlation and regression. In the previous courses, you've learned how to describe the distribution of a single variable. This is useful, but in many cases, what we are more interested in is understanding the relationship between two variables.
+
+**2. Bivariate relationships**
+
+In particular, in this course you will learn techniques for characterizing and quantifying the relationship between two numeric variables. In a statistical model, we generally have one variable that is the output and one or more variables that are the inputs. We will refer to the output variable as the response and we will denote it with the letter y. In other disciplines or contexts, you may hear this quantity called the dependent variable. More generally, the response variable is a quantity that we think might be related to the input or explanatory variable in some way. We typically denote any explanatory variables with the letter x. In this course, we will have a single explanatory variable, but in the next course, we will have several. In other fields, these can be called "independent" or "predictor" variables.
+
+**3. Graphical representations**
+
+Just as you learned to visualize the distribution of one variable with a histogram or density plot, statisticians have developed a commonly used framework for visualizing the relationship between two numeric variables: the scatter plot. The scatter plot has been called the most "generally useful invention in the history of statistical graphics”. It is a simple two-dimensional plot in which the two coordinates of each dot represent the value of one variable measured on a single observation. By convention, we always put the response variable on the vertical, or y axis, and the explanatory variable on the horizontal, or x axis.
+
+**4. Scatterplot**
+
+In ggplot, we bind the x and y aesthetics to our explanatory and response variables and then, use the geom point function to actually draw the points. Here we can see a scatter plot of the total length of a possum's body as a function of the length of its tail. Note that the axes have been labeled with the names of the variables automatically. For clarity, it is important to give your axes human-readable labels.
+
+```{r}
+ggplot(data = possum, aes(y = total_l, x = tail_l)) +
+  geom_point()
+```
+
+**5. Scatterplot**
+
+We can do that with the scale_x_continuous and scale_y_continuous functions. Since you already know how a box plot can illustrate the relationship between a numerical response variable and a categorical explanatory variable,
+
+```{r}
+ggplot(data = possum, aes(y = total_l, x = tail_l)) +
+  geom_point() + 
+  scale_x_continuous("Length of Possum Tail (cm)") + 
+  scale_y_continuous('Length of Possum Body (cm)')
+```
+
+**6. Bivariate relationships**
+
+it may be helpful to think of a scatter plot as a generalization of side-by-side box plots. We can connect these ideas by discretizing our explanatory variable. This can be achieved in R using the cut function, which takes a numeric vector and chops it into discrete chunks. The breaks argument specifies the number of chunks.
+
+**7. Scatterplot**
+
+Here, we use five breaks to separate the possums into five groups based on their tail length.
+
+```{r}
+ggplot(data = possum, aes(y = total_l, x = cut(tail_l, breaks = 5))) +
+  geom_point()
+```
+
+**8. Scatterplot**
+
+Finally, we change to geom boxplot to make the boxes. Note how the median body length increases as the tail length increases across the five groups.
+
+```{r, eval = FALSE}
+ggplot(data = possum, aes(y = total_l, x = cut(tail_l, breaks = 5))) +
+  geom_boxplot()
+```
+
+**9. Let's practice!**
+
+Now, it's time for you to get some practice making scatter plots.
+
+### **Scatterplots**
+
+Scatterplots are the most common and effective tools for visualizing the relationship between two numeric variables.
+
+The `ncbirths` dataset is a random sample of 1,000 cases taken from a larger dataset collected in 2004. Each case describes the birth of a single child born in North Carolina, along with various characteristics of the child (e.g. birth weight, length of gestation, etc.), the child's mother (e.g. age, weight gained during pregnancy, smoking habits, etc.) and the child's father (e.g. age). You can view the help file for these data by running `?ncbirths` in the console.
+
+**Instructions**
+
+Using the `ncbirths` dataset, make a scatterplot using `ggplot()` to illustrate how the birth weight of these babies varies according to the number of weeks of gestation.
+
+```{r, message = FALSE, warning = FALSE}
+# Scatterplot of weight vs. weeks
+ggplot(data = ncbirths, aes(x = weeks, y = weight)) +
+  geom_point()
+```
+
+### **Boxplots as discretized/conditioned scatterplots**
+
+If it is helpful, you can think of boxplots as scatterplots for which the variable on the x-axis has been discretized.
+
+The `cut()` function takes two arguments: the continuous variable you want to discretize and the number of `breaks` that you want to make in that continuous variable in order to discretize it.
+
+**Instructions**
+
+Using the `ncbirths` dataset again, make a boxplot illustrating how the birth weight of these babies varies according to the number of weeks of gestation. This time, use the `cut()` function to discretize the x-variable into six intervals (i.e. five breaks).
+
+```{r}
+# Boxplot of weight vs. weeks
+ggplot(data = ncbirths, 
+       aes(x = cut(weeks, breaks = 5), y = weight)) + 
+  geom_boxplot()
+```
+
+## **Characterizing bivariate relationships**
+
+**1. Characterizing bivariate relationships**
+
+Scatter plots can reveal characteristics of the relationship between two variables. Any patterns and deviations from those patterns, we see in these plots could give us some insight into the nature of the underlying phenomenon. Specifically, we look for four things: form, direction, strength, and outliers.
+
+**2. Characterizing bivariate relationships**
+
+Form is the overall shape made by the points. Since we are learning about linear regression, our primary concern is whether the form is linear or nonlinear. Direction is either positive or negative. Here, the question is whether the two variables tend to move in the same direction, that is, when one goes up, the other tends to go up, or in the opposite direction. We'll see examples of both in just a minute. The strength of the relationship is governed by how much scatter is present. Do the points seem to be clustered together in a way that suggests a close relationship? Or are they very loosely organized? Finally, any points that don't fit the overall pattern, or simply lie far away, are important to investigate. These outliers may be erroneous measurements, or they can be exceptions that help clarify the general trend. Either way, outliers can be revealing and we'll learn more about them later in the course.
+
+We're going to look at a bunch of scatter plots that we found "in the wild" and talk about what we see, so that you can start to build some experience in interpreting them. You can continue this exercise on your own by doing a Google image search for "scatter plot". As we work through these, please keep in mind that much of what we are doing at this stage involves making judgment calls. This is part of the nature of statistics and while it can be frustrating, especially as a beginner, it is inescapable. For better or for worse, statistics is not a field where there is one right answer. There are of course an infinite number of indefensible claims, but many judgments are open to interpretation.
+
+**3. Sign legibility**
+
+Here we see a negative, linear relationship between sign legibility and driver age. This makes sense to me, since people's eyesight tends to get worse as they age. I would characterize the strength of this relationship as moderately strong, since the pattern seems to be pervasive. I don't think we have any outliers here. This plot is in many ways a perfect candidate for fitting a regression model, since the form and direction are clear, but there is some variability in the observations.
+
+**4. NIST**
+
+Conversely, in this next scatter plot we see little evidence of any relationship at all. The direction is neither positive nor negative, nor is there any clearly identifiable form. Any perceived relationship would be exceptionally weak.
+
+**5. NIST 2**
+
+From the same source, we now see a clear nonlinear, negative relationship. This appears to be a very strong relationship, since if you know the value of x, you can do a pretty good job of predicting the value of y. Here again, we see no outliers.
+
+**6. Non-linear**
+
+In this example scatter plot, we see another clear, nonlinear relationship. In this case, the direction is negative for negative values of x, but positive for positive values of x. The points are clustered fairly close together, so the relationship is fairly strong. The point in the upper-left-hand corner might be considered an outlier, since it is far from the other points, but it doesn't represent a break from the overall pattern of the points.
+
+**7. Fan shape**
+
+In this scatter plot, we see what is known as a "fan shape." The direction is certainly positive, but the spread of the points increases dramatically as we get further from the origin. If we wanted to fit a linear model to these data, we would be best served by performing a logarithmic transformation on both variables. My guess is that taking the log of both calcium and iron would result in a very nice looking scatter plot with a clear linear form.
+
+**8. Let's practice!**
+
+In these next exercises, you'll get more practice creating scatter plots and characterizing what you see in them.
+
+### **Creating scatterplots**
+
+Creating scatterplots is simple and they are so useful that it is worthwhile to expose yourself to many examples. Over time, you will gain familiarity with the types of patterns that you see. You will begin to recognize how scatterplots can reveal the nature of the relationship between two variables.
+
+In this exercise, and throughout this chapter, we will be using several datasets listed below. These data are available through the `openintro` package. Briefly:
+
+- The `mammals` dataset contains information about 39 different species of mammals, including their body weight, brain weight, gestation time, and a few other variables.
+- The `mlbBat10` dataset contains batting statistics for 1,199 Major League Baseball players during the 2010 season.
+- The `bdims` dataset contains body girth and skeletal diameter measurements for 507 physically active individuals.
+- The `smoking` dataset contains information on the smoking habits of 1,691 citizens of the United Kingdom.
+To see more thorough documentation, use the `?` or `help()` functions.
+
+**Instructions**
+
+1. Using the `mammals` dataset, create a scatterplot illustrating how the brain weight of a mammal varies as a function of its body weight.
+2. Using the `mlbBat10` dataset, create a scatterplot illustrating how the slugging percentage (SLG) of a player varies as a function of his on-base percentage (OBP).
+3. Using the `bdims` dataset, create a scatterplot illustrating how a person's weight varies as a function of their height. Use color to separate by sex, which you'll need to coerce to a factor with `factor()`.
+4. Using the `smoking` dataset, create a scatterplot illustrating how the amount that a person smokes on weekdays varies as a function of their age.
+
+```{r}
+# Mammals scatterplot
+ggplot(data = mammals, aes(y = brain_wt, x = body_wt)) +
+  geom_point()
+
+# Baseball player scatterplot
+ggplot(data = mlbBat10, aes(x = obp, y = slg)) + geom_point()
+
+# Body dimensions scatterplot
+ggplot(data = bdims, aes(x = hgt, y = wgt, color = factor(sex))) +
+  geom_point()
+
+# Smoking scatterplot
+ggplot(data = smoking, aes(x = age, y = amt_weekdays)) +
+  geom_point()
+
+```
+
+### **Transformations**
+
+The relationship between two variables may not be linear. In these cases we can sometimes see strange and even inscrutable patterns in a scatterplot of the data. Sometimes there really is no meaningful relationship between the two variables. Other times, a careful *transformation* of one or both of the variables can reveal a clear relationship.
+
+Recall the bizarre pattern that you saw in the scatterplot between brain weight and body weight among mammals in a previous exercise. Can we use transformations to clarify this relationship?
+
+`ggplot2` provides several different mechanisms for viewing transformed relationships. The `coord_trans()` function transforms the coordinates of the plot. Alternatively, the `scale_x_log10()` and `scale_y_log10()` functions perform a base-10 log transformation of each axis. Note the differences in the appearance of the axes.
+
+The `mammals` dataset is available in your workspace.
+
+**Instructions**
+
+1. Use `coord_trans()` to create a scatterplot showing how a mammal's brain weight varies as a function of its body weight, where both the x and y axes are on a `"log10"` scale.
+2. Use `scale_x_log10()` and `scale_y_log10()` to achieve the same effect but with different axis labels and grid lines.
+
+```{r}
+# Scatterplot with coord_trans()
+ggplot(data = mammals, aes(x = body_wt, y = brain_wt)) +
+  geom_point() + 
+  coord_trans(x = "log10", y = "log10")
+
+# Scatterplot with scale_x_log10() and scale_y_log10()
+ggplot(data = mammals, aes(x = body_wt, y = brain_wt)) +
+  geom_point() +
+  scale_x_log10() + 
+  scale_y_log10()
+```
+
+## **Outliers**
+
+**1. Outliers**
+
+Observations that don't seem to fit with the rest of points may be considered outliers. There isn't a universal, hard-and-fast definition of what constitutes an outlier, but they are often easy to spot in a scatter plot.
+
+In this scatter plot, we consider the relationship between the number of home runs hit by Major League baseball players in 2010 and the number of bases they stole. Home runs are a measure of batting power, while stolen bases are a measure of footspeed. It is not surprising that we see a negative relationship here, since power and speed are generally considered complementary skills. Since both variables here are integer-valued, several of the observations have the same coordinates, and thus the corresponding points are plotted on top of one another. This can misrepresent the data.
+
+```{r}
+ggplot(data = mlbBat10, aes(x =  stolen_base, y = home_run)) + 
+  geom_point()
+```
+
+**2. Add transparency**
+
+To combat this, we can add an alpha transparency to the points, making them more translucent. Now we can see that the overplotting occurs where the darker dots are.
+
+```{r}
+ggplot(data = mlbBat10, aes(x =  stolen_base, y = home_run)) + 
+  geom_point(alpha = 0.5)
+```
+
+**3. Add some jitter**
+
+Another approach is add some jitter to the plot. This is just a small amount of random noise in either the x or y direction. This relieves the constraint of having both coordinates be integers and thus allows us to see all of the data. In this plot, there are two points that stand out as potential outliers: the one in the lower-right hand corner and the one at the very top. We will discuss later in the course how to handle these outliers, but for now, it is enough to simply identify them and investigate them.
+
+```{r}
+ggplot(data = mlbBat10, aes(x =  stolen_base, y = home_run)) + 
+  geom_point(alpha = 0.5, position = 'jitter')
+```
+**4. Identify the outliers**
+
+In this case, we can use the filter function to identify those players with at least 60 stolen bases or at least 50 home runs. As it turns out, the player in the lower-right hand corner is Juan Pierre, who is one of the speediest and least powerful hitters in recent memory. The player at the top is Jose Bautista, one of the game's most revered sluggers.
+
+```{r}
+mlbBat10 %>% 
+  filter(stolen_base > 60 | home_run > 50) %>% 
+  select(name, team, position, stolen_base, home_run)
+```
+
+**5. Let's practice!**
+
+See if you can find the outliers in the next exercise.
+
+### **Identifiyng outliers**
+
+In Chapter 5, we will discuss how outliers can affect the results of a linear regression model and how we can deal with them. For now, it is enough to simply identify them and note how the relationship between two variables may change as a result of removing outliers.
+
+Recall that in the baseball example earlier in the chapter, most of the points were clustered in the lower left corner of the plot, making it difficult to see the general pattern of the majority of the data. This difficulty was caused by a few outlying players whose on-base percentages (OBPs) were exceptionally high. These values are present in our dataset only because these players had very few batting opportunities.
+
+Both OBP and SLG are known as rate statistics, since they measure the frequency of certain events (as opposed to their count). In order to compare these rates sensibly, it makes sense to include only players with a reasonable number of opportunities, so that these observed rates have the chance to approach their long-run frequencies.
+
+In Major League Baseball, batters qualify for the batting title only if they have 3.1 plate appearances per game. This translates into roughly 502 plate appearances in a 162-game season. The `mlbBat10` dataset does not include plate appearances as a variable, but we can use at-bats (`AB`) -- which constitute a subset of plate appearances -- as a proxy.
+
+**Instructions**
+
+- Use `filter()` to keep only players who had at least 200 at-bats, assigning to `ab_gt_200`.
+- Using `ab_gt_200`, create a scatterplot for `SLG` as a function of `OBP`.
+- Find the row of `ab_gt_200` corresponding to the one player (with at least 200 at-bats) whose OBP was below 0.200.
+
+```{r}
+# Filter for AB greater than or equal to 200
+ab_gt_200 <- mlbBat10 %>%
+  filter(at_bat >= 200) 
+
+# Scatterplot of SLG vs. OBP
+ggplot(ab_gt_200, aes(x = obp, y = slg)) +
+  geom_point()
+
+# Identify the outlying player
+ab_gt_200 %>%
+  filter(obp < 0.2)
+```
+

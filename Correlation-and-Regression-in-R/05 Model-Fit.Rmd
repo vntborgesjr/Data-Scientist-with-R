@@ -649,9 +649,9 @@ Finally, we introduced the notion of model fit and developed tools for helping u
 ```{r}
 possum %>% 
   ggplot(aes(x = tailL, y = totalL)) +
-  geom_point() = 
+  geom_point() +
   geom_smooth(method = 'lm', se = 0) +
-  geom_segment(aes(x = tailL, xend = tailL, y = fitted.values(lm(totalL ~ tailL)), yend = totalL),arrow =  arrow(ends = 'first', type = 'closed', length = unit(0.1, 'cm')), size = 0.5, color = 'grey')
+  geom_segment(aes(x = tailL, xend = tailL, y = fitted.values(lm(totalL ~ tailL)), yend = totalL), arrow = arrow(ends = 'first', type = 'closed', length = unit(0.1, 'cm')), color = "grey")
 ```
 
 **9. Let's practice!**
